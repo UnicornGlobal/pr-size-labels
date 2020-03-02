@@ -31,8 +31,6 @@ echo "$GITHUB_EVENT_PATH"
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
 autolabel() {
-  # https://developer.github.com/v3/pulls/#get-a-single-pull-request
-  # Example: https://api.github.com/repos/CodelyTV/java-ddd-example/pulls/7
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}")
 
   additions=$(echo "$body" | jq '.additions')
@@ -50,8 +48,8 @@ autolabel() {
     -d "{\"labels\":[\"${label_to_add}\"]}" \
     "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
 
-  if [ "$label_to_add" == "size/xl" ] && [ "$fail_if_xl" == "true" ]; then
-    echo "Pr is xl, please, short this!!"
+  if [ "$label_to_add" == "size/xxl" ] && [ "$fail_if_xxl" == "true" ]; then
+    echo "PR is XXL, please refactor"
     exit 1
   fi
 }

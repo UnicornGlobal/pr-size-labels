@@ -1,5 +1,8 @@
 name: 'PR Size Labels'
 description: 'Label a PR based on the number of changes in the PR'
+branding:
+  icon: 'tag'
+  color: 'green'
 inputs:
   GITHUB_TOKEN:
     description: 'GitHub Token'
