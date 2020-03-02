@@ -4,33 +4,26 @@ branding:
   icon: 'tag'
   color: 'green'
 inputs:
-  GITHUB_TOKEN:
-    description: 'GitHub Token'
-    required: true
   xs_max_size:
     description: 'Extra Small'
     required: false
-    default: '10'
+    default: 10
   s_max_size:
     description: 'Small'
     required: false
-    default: '30'
+    default: 30
   m_max_size:
     description: 'Medium'
     required: false
-    default: '100'
+    default: 100
   l_max_size:
     description: 'Large'
     required: false
-    default: '500'
+    default: 500
   xl_max_size:
     description: 'Extra Large'
     required: false
-    default: '1000'
-  fail_if_xxl:
-    description: 'Fail if XXL'
-    required: false
-    default: 'false'
+    default: 1000
 runs:
   using: 'docker'
   image: 'Dockerfile'
@@ -41,4 +34,3 @@ runs:
     - ${{ inputs.m_max_size }}
     - ${{ inputs.l_max_size }}
     - ${{ inputs.xl_max_size }}
-    - ${{ inputs.fail_if_xl }}

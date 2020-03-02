@@ -1,6 +1,6 @@
-FROM alpine:3.10
+FROM alpine/git
 
-RUN apk add --no-cache bash curl jq bc
+RUN apk add --no-cache bash curl jq bc grep
 
 ADD entrypoint.sh /entrypoint.sh
 

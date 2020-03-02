@@ -11,6 +11,9 @@ if [[ -z "$GITHUB_EVENT_PATH" ]]; then
   exit 1
 fi
 
+# get the branches to compare
+git fetch origin $GITHUB_BASE_REF $GITHUB_HEAD_REF
+
 GITHUB_TOKEN="$1"
 
 xs_max_size="$2"
@@ -19,24 +22,49 @@ m_max_size="$4"
 l_max_size="$5"
 xl_max_size="$6"
 
-fail_if_xxl="$7"
-
 URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
 AUTH_HEADER="Authorization: token ${GITHUB_TOKEN}"
-
-echo "GitHub event"
-echo "$GITHUB_EVENT_PATH"
 
 number=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
 
 autolabel() {
   body=$(curl -sSL -H "${AUTH_HEADER}" -H "${API_HEADER}" "${URI}/repos/${GITHUB_REPOSITORY}/pulls/${number}")
 
-  additions=$(echo "$body" | jq '.additions')
-  deletions=$(echo "$body" | jq '.deletions')
-  total_modifications=$(echo "$additions + $deletions" | bc)
-  label_to_add=$(label_for "$total_modifications")
+  # count the changes and ignore common lock files
+  total_modifications=$(git diff origin/${GITHUB_HEAD_REF}..origin/${GITHUB_BASE_REF} --stat | grep -v 'package.lock' | grep -v 'yarn.lock' | grep -v 'composer.lock' | grep -v '| Bin ' | grep -v ' files changed, ' | tr -s ' ' | cut -d' ' -f4 | awk '{s+=$1}END{print s}')
+
+  echo "Total modifications: ${total_modifications}"
+
+  label_to_add=$(label_for $total_modifications)
+
+  echo "Label to add: ${label_to_add}"
+
+  list=($(echo "$body" | jq .labels | jq .[] | jq .name))
+
+  already_exists=0
+
+  # Check all existing labels and remove any that do not match
+  for i in ${list[@]}
+  do
+    :
+    i=$(echo $i | sed -e 's/^"//' -e 's/"$//')
+    if [[ $i != ${label_to_add} ]]; then
+      # check if it is a size label
+      if [[ $i == *"size"* ]]; then
+        echo "Removing old size label $i"
+        remove $(echo $i | sed -e 's/^"//' -e 's/"$//')
+      fi
+    else
+      echo "The size label already exists"
+      already_exists=1
+    fi
+  done
+
+  # Check if the label already exists
+  if [[ ${already_exists} == 1 ]]; then
+    exit 0
+  fi
 
   echo "Labeling pull request with $label_to_add"
 
@@ -47,11 +75,15 @@ autolabel() {
     -H "Content-Type: application/json" \
     -d "{\"labels\":[\"${label_to_add}\"]}" \
     "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels"
+}
 
-  if [ "$label_to_add" == "size/xxl" ] && [ "$fail_if_xxl" == "true" ]; then
-    echo "PR is XXL, please refactor"
-    exit 1
-  fi
+remove() {
+  curl -sSL \
+    -H "${AUTH_HEADER}" \
+    -H "${API_HEADER}" \
+    -X DELETE \
+    -H "Content-Type: application/json" \
+    "${URI}/repos/${GITHUB_REPOSITORY}/issues/${number}/labels/$1"
 }
 
 label_for() {
