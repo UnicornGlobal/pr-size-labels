@@ -17,8 +17,9 @@ xs_max_size="$2"
 s_max_size="$3"
 m_max_size="$4"
 l_max_size="$5"
+xl_max_size="$6"
 
-fail_if_xl="$6"
+fail_if_xxl="$7"
 
 URI="https://api.github.com"
 API_HEADER="Accept: application/vnd.github.v3+json"
@@ -57,15 +58,17 @@ autolabel() {
 
 label_for() {
   if [ "$1" -lt "$xs_max_size" ]; then
-    label="size/xs"
+    label="size/XS"
   elif [ "$1" -lt "$s_max_size" ]; then
-    label="size/s"
+    label="size/S"
   elif [ "$1" -lt "$m_max_size" ]; then
-    label="size/m"
+    label="size/M"
   elif [ "$1" -lt "$l_max_size" ]; then
-    label="size/l"
+    label="size/L"
+  elif [ "$1" -lt "$xl_max_size" ]; then
+    label="size/XL"
   else
-    label="size/xl"
+    label="size/XXL"
   fi
 
   echo "$label"
