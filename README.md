@@ -20,7 +20,7 @@ jobs:
 
 ## Why the Fork?
 
-So we could make the sizes and names of the labels to match our
+So we could make the sizes and names of the labels match our
 existing internal setup.
 
 ## License
