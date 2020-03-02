@@ -1,6 +1,6 @@
 ## Usage
 
-Create a file named `labeler.yml` inside the `.gihub/workflows` directory and paste:
+Create a file named `size_labels.yml` inside the `.gihub/workflows` directory and paste:
 
 ```yml
 name: PR Size Labels
@@ -22,6 +22,8 @@ jobs:
 
 So we could make the sizes and names of the labels match our
 existing internal setup.
+
+Upstream project: CodelyTV/pr-size-labeler
 
 ## License
 
